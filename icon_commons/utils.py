@@ -2,6 +2,9 @@ from lxml import etree
 import re
 
 
+_shape_paths = '|'.join(['//svg:%s' % e for e in ('path', 'polygon', 'circle', 'ellipse', 'rect', 'line', 'polyline')])
+
+
 # @todo testme
 def process_svg(svg, params):
     dom = etree.fromstring(str(svg))
@@ -13,8 +16,7 @@ def process_svg(svg, params):
         replacers.append(FillReplacer(fill))
     if stroke:
         replacers.append(StrokeReplacer(stroke))
-    xpath = '|'.join(['//svg:%s' % e for e in ('path','polygon','circle','ellipse','rect', 'line', 'polyline')])
-    for el in dom.xpath(xpath, namespaces=ns):
+    for el in dom.xpath(_shape_paths, namespaces=ns):
         process_element(el, replacers)
     return etree.tostring(dom)
 
@@ -22,9 +24,9 @@ def process_svg(svg, params):
 def process_element(element, replacers):
     style = element.get('style')
     if style:
-        styledict = dict([ pv.split(':') for pv in style.split(';') if ':' in pv])
-        if any([ r.process(styledict) for r in replacers]):
-            style = ';'.join([ '%s:%s' % kv for kv in styledict.items()])
+        styledict = dict([pv.split(':') for pv in style.split(';') if ':' in pv])
+        if any([r.process(styledict) for r in replacers]):
+            style = ';'.join(['%s:%s' % kv for kv in styledict.items()])
             element.set('style', style)
     # style may also be in element attributes
     for r in replacers:

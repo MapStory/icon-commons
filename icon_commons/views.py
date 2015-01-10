@@ -1,6 +1,7 @@
 from django.core.urlresolvers import reverse
 from django.db.models import Count
 from django.http import HttpResponse
+from django.http import HttpResponseNotModified
 from django.views.generic.base import View
 from django.views.generic.base import ContextMixin
 from django.views.generic.list import MultipleObjectMixin
@@ -10,6 +11,10 @@ from icon_commons.models import IconData
 from icon_commons.utils import process_svg
 from taggit.models import TaggedItem
 import json
+from datetime import datetime
+
+
+_date_fmt = '%a, %d %b %Y %H:%M:%S GMT'
 
 
 class JSONMixin(ContextMixin):
@@ -66,10 +71,16 @@ class IconView(View):
             icon = query.filter(version=version)[0]
         else:
             icon = query.latest('version')
+        stale = request.META.get('HTTP_IF_MODIFIED_SINCE', None)
+        if stale:
+            if icon.modified.replace(tzinfo=None) > datetime.strptime(stale, _date_fmt):
+                return HttpResponseNotModified()
         svg = icon.svg
         if params:
             svg = process_svg(svg, params)
-        return HttpResponse(svg, content_type='image/svg+xml')
+        resp = HttpResponse(svg, content_type='image/svg+xml')
+        resp['Last-Modified'] = icon.modified.strftime(_date_fmt)
+        return resp
 
 
 class IconList(View, JSONListMixin):
