@@ -8,15 +8,58 @@ def process_svg(svg, params):
     ns = {"svg": "http://www.w3.org/2000/svg"}
     fill = params.get('fill', None)
     stroke = params.get('stroke', None)
-    # @todo process other elements
-    for path in dom.xpath('//svg:path', namespaces=ns):
-        style = path.get('style')
-        # @todo make this better - use css library?
-        style = re.sub('fill:[^;]+;', '', style)
-        style = re.sub('stroke:[^;]+;', '', style)
-        if fill:
-            style += 'fill:%s;' % fill
-        if stroke:
-            style += 'stroke:%s;' % stroke
-        path.set('style', style)
+    replacers = []
+    if fill:
+        replacers.append(FillReplacer(fill))
+    if stroke:
+        replacers.append(StrokeReplacer(stroke))
+    xpath = '|'.join(['//svg:%s' % e for e in ('path','polygon','circle','ellipse','rect', 'line', 'polyline')])
+    for el in dom.xpath(xpath, namespaces=ns):
+        process_element(el, replacers)
     return etree.tostring(dom)
+
+
+def process_element(element, replacers):
+    style = element.get('style')
+    if style:
+        styledict = dict([ pv.split(':') for pv in style.split(';') if ':' in pv])
+        if any([ r.process(styledict) for r in replacers]):
+            style = ';'.join([ '%s:%s' % kv for kv in styledict.items()])
+            element.set('style', style)
+    # style may also be in element attributes
+    for r in replacers:
+        r.process(element.attrib)
+
+
+class StyleReplacer(object):
+    def __init__(self, replacement):
+        self.replacement = replacement
+        self.pattern = re.compile('%s:([^;]+);?' % self.property)
+
+    def should_replace(self, style):
+        return True
+
+    def update(self, style):
+        style[self.property] = self.replacement
+
+    def process(self, style):
+        updated = False
+        if self.should_replace(style):
+            self.update(style)
+            updated = True
+        return updated
+
+
+class FillReplacer(StyleReplacer):
+    property = 'fill'
+
+    def should_replace(self, styles):
+        fill = styles.get('fill', '').lower()
+        return fill and (fill != 'none' and fill != '#ffffff')
+
+
+class StrokeReplacer(StyleReplacer):
+    property = 'stroke'
+
+    def should_replace(self, styles):
+        return 'stroke' in styles
