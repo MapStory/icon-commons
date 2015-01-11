@@ -31,6 +31,17 @@ def debug_queries(func):
     return inner
 
 
+def cors(cls):
+    get = cls.get
+    def inner(*args, **kw):
+        resp = get(*args, **kw)
+        resp['Access-Control-Allow-Origin'] = '*'
+        resp['Access-Control-Allow-Methods'] = 'GET'
+        return resp
+    cls.get = inner
+    return cls
+
+
 class JSONMixin(ContextMixin):
 
     def get(self, request, *args, **kwargs):
@@ -70,6 +81,7 @@ class JSONListMixin(MultipleObjectMixin, JSONMixin):
         raise Exception('implement me')
 
 
+@cors
 class IconView(View):
     def get(self, request, *args, **kwargs):
         id = kwargs.get('id', None)
@@ -97,6 +109,7 @@ class IconView(View):
         return resp
 
 
+@cors
 class IconInfoView(View, JSONMixin):
     def get_context_data(self, **kwargs):
         return Icon.objects.select_related('collection').get(id=kwargs['id'])
@@ -120,6 +133,7 @@ class IconInfoView(View, JSONMixin):
         }
 
 
+@cors
 class IconList(View, JSONListMixin):
     context_object_name = 'icons'
     paginate_by = 24
@@ -146,6 +160,7 @@ class IconList(View, JSONListMixin):
         return o.name
 
 
+@cors
 class CollectionList(View, JSONListMixin):
     context_object_name = 'collections'
 
@@ -161,6 +176,7 @@ class CollectionList(View, JSONListMixin):
         }
 
 
+@cors
 class SearchTags(View, JSONMixin):
 
     def get_context_data(self, **kwargs):
