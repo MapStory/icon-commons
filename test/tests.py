@@ -86,6 +86,16 @@ class ViewTest(TestCase):
         r = self.client.get(reverse('iconcommons_icon_view', kwargs={'id':1}))
         self.assertEquals('hi', r.content)
 
+    def test_icon_info_view(self):
+        self.icon.new_version('hi2', 'updated')
+        self.icon.new_version('hi3', 'updated again')
+        self.icon.tags.add('x','y','z')
+        r = self.client.get(reverse('iconcommons_icon_info_view', kwargs={'id':1}))
+        data = json.loads(r.content)
+        self.assertEquals(6, len(data['tags']))
+        self.assertEquals(3, len(data['versions']))
+        self.assertEquals('foobar', data['collection']['name'])
+
     def test_list_icons_with_tag_query(self):
         r = self.client.get(reverse('iconcommons_icon_list'), {
             'tag' : ['foobar']

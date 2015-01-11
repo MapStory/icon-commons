@@ -57,11 +57,11 @@ class FillReplacer(StyleReplacer):
 
     def should_replace(self, styles):
         fill = styles.get('fill', '').lower()
-        return fill and (fill != 'none' and fill != '#ffffff')
+        return fill is None or (fill != 'none' and fill != '#ffffff')
 
 
 class StrokeReplacer(StyleReplacer):
     property = 'stroke'
 
     def should_replace(self, styles):
-        return 'stroke' in styles
+        return True

@@ -1,4 +1,5 @@
 from django.core.urlresolvers import reverse
+from django.db import connection
 from django.db.models import Count
 from django.http import HttpResponse
 from django.http import HttpResponseNotModified
@@ -15,6 +16,19 @@ from datetime import datetime
 
 
 _date_fmt = '%a, %d %b %Y %H:%M:%S GMT'
+
+
+# can be used around a function to debug db queries. to wrap a generic view:
+# ViewClass.func = debug_queries(ViewClass.get)
+def debug_queries(func):
+    def inner(*args, **kw):
+        from django.conf import settings
+        settings.DEBUG = True
+        connection.queries = []
+        resp = func(*args, **kw)
+        print len(connection.queries)
+        return resp
+    return inner
 
 
 class JSONMixin(ContextMixin):
@@ -73,7 +87,7 @@ class IconView(View):
             icon = query.latest('version')
         stale = request.META.get('HTTP_IF_MODIFIED_SINCE', None)
         if stale:
-            if icon.modified.replace(tzinfo=None) > datetime.strptime(stale, _date_fmt):
+            if icon.modified.replace(microsecond=0, tzinfo=None) <= datetime.strptime(stale, _date_fmt):
                 return HttpResponseNotModified()
         svg = icon.svg
         if params:
@@ -81,6 +95,29 @@ class IconView(View):
         resp = HttpResponse(svg, content_type='image/svg+xml')
         resp['Last-Modified'] = icon.modified.strftime(_date_fmt)
         return resp
+
+
+class IconInfoView(View, JSONMixin):
+    def get_context_data(self, **kwargs):
+        return Icon.objects.select_related('collection').get(id=kwargs['id'])
+
+    def get_json_data(self, icon):
+        versions = [{
+            'version' : data.version,
+            'modified' : data.modified.isoformat(),
+            'changelog' : data.change_log,
+        } for data in icon.icondata_set.all()]
+        return {
+            'collection' : {
+                'id': icon.collection.id,
+                'name': icon.collection.name
+            },
+            'name' : icon.name,
+            'versions' : versions,
+            'tags' : [ { 'id':t.id, 'name':t.name }
+                for t in icon.tags.all()
+            ]
+        }
 
 
 class IconList(View, JSONListMixin):
