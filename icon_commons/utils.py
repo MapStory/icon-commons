@@ -7,7 +7,8 @@ _shape_paths = '|'.join(['//svg:%s' % e for e in ('path', 'polygon', 'circle', '
 
 # @todo testme
 def process_svg(svg, params):
-    dom = etree.fromstring(str(svg))
+    # @todo this mostly works
+    dom = etree.fromstring(svg.encode('utf-8'))
     ns = {"svg": "http://www.w3.org/2000/svg"}
     fill = params.get('fill', None)
     stroke = params.get('stroke', None)
