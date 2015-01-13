@@ -17,4 +17,4 @@ The `test` directory contains the tests and settings. Run them like this `python
 
 ## See Other
 
-icon-commons-site
+https://github.com/MapStory/icon-commons-site
