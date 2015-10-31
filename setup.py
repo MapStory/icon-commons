@@ -19,7 +19,8 @@ setup(name = "django-icon-commons",
     author_email = "ischneider@boundlessgeo.com",
     install_requires = [
         "django-taggit==0.12",
-        "lxml"
+        "lxml",
+	"django_extensions"
     ],
     classifiers = [
     ],
