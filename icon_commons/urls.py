@@ -5,9 +5,11 @@ from icon_commons.views import CollectionList
 from icon_commons.views import IconList
 from icon_commons.views import IconView
 from icon_commons.views import IconInfoView
+from icon_commons.views import upload
 
 
 urlpatterns = patterns('',
+    url(r'^$', upload, name='upload'),
     url(r'^search/tags$', SearchTags.as_view(), name='iconcommons_search_tags'),
     url(r'^collections$', CollectionList.as_view(), name='iconcommons_collection_list'),
     url(r'^collections/(?P<collection>[-\w\d]+)$', IconList.as_view(), name='iconcommons_collection_icons'),

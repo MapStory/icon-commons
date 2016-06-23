@@ -3,6 +3,7 @@ from django.db import transaction
 from django.template.defaultfilters import slugify
 from taggit.managers import TaggableManager
 from base64 import b64encode
+from django.conf import settings
 
 
 class SlugMixin(models.Model):
@@ -39,6 +40,7 @@ class IconData(models.Model):
 
 class Icon(SlugMixin):
 
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True)
     collection = models.ForeignKey('icon_commons.Collection')
     tags = TaggableManager()
     modified = models.DateTimeField(auto_now=True)
