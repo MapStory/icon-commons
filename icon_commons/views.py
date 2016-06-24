@@ -201,6 +201,7 @@ class SearchTags(View, JSONMixin):
             'tags': [t.name for t in tags]
         }
 
+
 @login_required
 # Notes: error proof the splits
 def upload(req):
