@@ -1,0 +1,35 @@
+<html>
+    <head>
+        <title>Icon Commons!</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular-route.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.12.0/ui-bootstrap-tpls.js"></script>
+        <script type="text/javascript">
+            // @todo inject configuration from django
+        </script>
+        <script src="/static/app.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+        <link rel="stylesheet" href="/static/style.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/4.10.0/codemirror.min.css">
+    </head>
+    <body ng-app='icon_commons' ng-controller='App as app'>
+        {% verbatim %}
+        <div class="container">
+            <div class="row">
+                <h1 class="text-center"><a href="#/tags">Icon</a> <a href="#/collections">Commons</a></h1>
+            </div>
+            <div ng-view class="row">
+            </div>
+        </div>
+        {% endverbatim %}
+        <div class="container">
+          <form name="icon_form" method="POST" action="#" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ icon_form }}
+            <input class="btn btn-primary" id="icon_submit_btn" type="submit" value="Upload"/>
+          </form>
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/4.10.0/codemirror.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/4.10.0/mode/xml/xml.min.js"></script>
+    </body>
+</html>

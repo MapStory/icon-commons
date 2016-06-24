@@ -20,7 +20,8 @@ setup(name = "django-icon-commons",
     install_requires = [
         "django-taggit==0.12",
         "lxml",
-	"django_extensions"
+	"django_extensions",
+    "django_nose"
     ],
     classifiers = [
     ],
