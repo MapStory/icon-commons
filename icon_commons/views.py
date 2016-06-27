@@ -14,7 +14,6 @@ from icon_commons.utils import process_svg
 from taggit.models import TaggedItem
 import json
 from datetime import datetime
-import time
 import zipfile
 from django.shortcuts import render_to_response
 from django.http import HttpResponseRedirect
@@ -145,7 +144,7 @@ class IconInfoView(View, JSONMixin):
 @cors
 class IconList(View, JSONListMixin):
     context_object_name = 'icons'
-    paginate_by = 24
+    paginate_by = 100
 
     def get_queryset(self):
         query = Icon.objects.all()
@@ -164,6 +163,7 @@ class IconList(View, JSONListMixin):
         url = reverse('iconcommons_icon_view', kwargs={'id': o.id})
         return {
             'name': o.name,
+            'owner': o.owner,
             'href': url
         }
         return o.name
@@ -227,7 +227,6 @@ def upload(req):
                     unzipped_type = file_name.split('.')[1]
                     if unzipped_type != 'svg':
                         continue
-                    current_time = time.time()
                     col, col_created = Collection.objects.get_or_create(name=col_name)
                     icon_name = file_name.split('.')[0].split('/')[1]  # NOTE: not sure if this is correct to do on all OS's...
                     icon, icon_created = Icon.objects.get_or_create(name=icon_name, collection=col, owner=req.user)
@@ -245,7 +244,6 @@ def upload(req):
                         icon.new_version(data, msg)  # Pass req.user
                     icon.save()
             elif file_type == 'svg':
-                current_time = time.time()
                 col, col_created = Collection.objects.get_or_create(name=col_name)
                 icon_name = svg.name.split('.')[0]
                 icon, icon_created = Icon.objects.get_or_create(name=icon_name, collection=col, owner=req.user)
@@ -262,7 +260,7 @@ def upload(req):
                     icon.new_version(data, msg)
                 icon.save()
             else:
-                return HttpResponseRedirect(reverse('home'))
+                return HttpResponseRedirect(reverse('upload'))
     else:
         form = IconForm()
     return render_to_response('upload.html', RequestContext(req, {"icon_form": form}))
