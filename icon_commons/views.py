@@ -260,7 +260,7 @@ def upload(req):
                     icon.new_version(data, msg)
                 icon.save()
             else:
-                return HttpResponseRedirect(reverse('upload'))
+                return HttpResponseRedirect(reverse('icon_upload'))
     else:
         form = IconForm()
-    return render_to_response('upload.html', RequestContext(req, {"icon_form": form}))
+    return render_to_response('icons/icon_upload.html', RequestContext(req, {"icon_form": form}))
