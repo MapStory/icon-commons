@@ -165,7 +165,7 @@ class IconList(View, JSONListMixin):
             'owner': o.owner,
             'href': url
         }
-    
+
 
 @cors
 class CollectionList(View, JSONListMixin):
@@ -201,13 +201,11 @@ class SearchTags(View, JSONMixin):
 
 
 @login_required
-# Notes: error proof the splits
 def upload(req):
     if req.method == 'POST':
         form = IconForm(req.POST, req.FILES)
         if form.is_valid():
             tags = form.cleaned_data['tags']
-            # This should be the same as form.cleaned_data['svg'] I think
             svg = req.FILES['svg']
             collection_name = form.cleaned_data['collection']
             # If they defined a collection name, use that. Otherwise, use the name of the file/zip
@@ -258,7 +256,7 @@ def upload(req):
                     icon.new_version(data, msg)
                 icon.save()
             else:
-                return HttpResponseRedirect(reverse('icon_upload'))
+                return HttpResponseRedirect(reverse('upload'))
     else:
         form = IconForm()
     return render_to_response('icons/icon_upload.html', RequestContext(req, {"icon_form": form}))
