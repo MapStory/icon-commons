@@ -21,7 +21,6 @@ from django.template import RequestContext
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
 
-
 _date_fmt = '%a, %d %b %Y %H:%M:%S GMT'
 
 
@@ -166,8 +165,7 @@ class IconList(View, JSONListMixin):
             'owner': o.owner,
             'href': url
         }
-        return o.name
-
+    
 
 @cors
 class CollectionList(View, JSONListMixin):
