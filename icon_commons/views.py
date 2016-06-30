@@ -20,6 +20,7 @@ from django.http import HttpResponseRedirect
 from django.template import RequestContext
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
+from django.core import serializers
 
 _date_fmt = '%a, %d %b %Y %H:%M:%S GMT'
 
@@ -162,7 +163,7 @@ class IconList(View, JSONListMixin):
         url = reverse('iconcommons_icon_view', kwargs={'id': o.id})
         return {
             'name': o.name,
-            'owner': o.owner,
+            'owner': o.owner.username,
             'href': url
         }
 
