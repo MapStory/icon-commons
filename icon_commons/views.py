@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.db import connection
 from django.db.models import Count
@@ -240,6 +241,7 @@ def upload(req):
                     if updated:
                         icon.new_version(data, msg)  # Pass req.user
                     icon.save()
+                    messages.success(req, 'Icons uploaded successfully.')
             elif file_type == 'svg':
                 col, col_created = Collection.objects.get_or_create(name=col_name)
                 icon_name = svg.name.split('.')[0]
@@ -256,6 +258,7 @@ def upload(req):
                 if updated:
                     icon.new_version(data, msg)
                 icon.save()
+                messages.success(req, 'Icon uploaded successfully.')
             else:
                 return HttpResponseRedirect(reverse('upload'))
     else:
