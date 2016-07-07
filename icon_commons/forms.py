@@ -13,4 +13,3 @@ def validate_file_extension(value):
 class IconForm(forms.Form):
     tags = TagField(required=True)
     svg = forms.FileField(required=True, validators=[validate_file_extension])
-    collection = forms.CharField(max_length=128, required=False)

@@ -209,9 +209,9 @@ def upload(req):
         if form.is_valid():
             tags = form.cleaned_data['tags']
             svg = req.FILES['svg']
-            collection_name = form.cleaned_data['collection']
+            collection_name = req.user
             # If they defined a collection name, use that. Otherwise, use the name of the file/zip
-            col_name = collection_name if collection_name else svg.name.split('.')[0]
+            col_name = collection_name
             # Two possibilities we want to handle:
             # a) it's a .zip, so unzip it and ingest all files
             # b) it's a .svg, so just ingest this one file
