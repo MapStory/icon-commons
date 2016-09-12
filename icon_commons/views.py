@@ -241,7 +241,7 @@ def upload(req):
                     if updated:
                         icon.new_version(data, msg)  # Pass req.user
                     icon.save()
-                    messages.success(req, 'Icons uploaded successfully.')
+                    messages.success(req, 'Congratulations! Your upload was successful. You can see your icons on your profile page. When you\'re composing a story with point layers, you\'ll be able to style your points with any icons uploaded by any storyteller in the Icons Commons!')
             elif file_type == 'svg':
                 col, col_created = Collection.objects.get_or_create(name=col_name)
                 icon_name = svg.name.split('.')[0]
@@ -258,7 +258,7 @@ def upload(req):
                 if updated:
                     icon.new_version(data, msg)
                 icon.save()
-                messages.success(req, 'Icon uploaded successfully.')
+                messages.success(req, 'Congratulations! Your upload was successful. You can see your icons on your profile page. When you\'re composing a story with point layers, you\'ll be able to style your points with any icons uploaded by any storyteller in the Icons Commons!')
             else:
                 return HttpResponseRedirect(reverse('upload'))
     else:
