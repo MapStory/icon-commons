@@ -1,3 +1,4 @@
+import os
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.db import connection
@@ -226,7 +227,7 @@ def upload(req):
                     if unzipped_type != 'svg':
                         continue
                     col, col_created = Collection.objects.get_or_create(name=col_name)
-                    icon_name = file_name.split('.')[0].split('/')[1]  # NOTE: not sure if this is correct to do on all OS's...
+                    icon_name = os.path.splitext(os.path.basename(file_name))[0]
                     icon, icon_created = Icon.objects.get_or_create(name=icon_name, collection=col, owner=req.user)
                     msg = 'initial import' if icon_created else 'automatic update'
                     # Add tags to the icon
