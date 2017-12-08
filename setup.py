@@ -18,7 +18,7 @@ setup(name = "django-icon-commons",
     author = "Ian Schneider",
     author_email = "ischneider@boundlessgeo.com",
     install_requires = [
-        "django-taggit==0.12",
+        "django-taggit",
         "lxml",
 	"django_extensions",
     "django_nose"
