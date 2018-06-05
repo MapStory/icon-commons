@@ -17,11 +17,13 @@ setup(name = "django-icon-commons",
     url = "",
     author = "Ian Schneider",
     author_email = "ischneider@boundlessgeo.com",
+    packages = ["icon_commons"],
+    package_dir = {"icon_commons": "icon_commons"},
     install_requires = [
         "django-taggit",
         "lxml",
-	"django_extensions",
-    "django_nose"
+        "django_extensions",
+        "django_nose"
     ],
     classifiers = [
     ],
