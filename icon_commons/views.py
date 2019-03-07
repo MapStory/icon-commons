@@ -1,4 +1,6 @@
 import os
+from tempfile import mkstemp
+import os.path
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.db import connection
@@ -206,6 +208,7 @@ class SearchTags(View, JSONMixin):
 @login_required
 def upload(req):
     if req.method == 'POST':
+
         form = IconForm(req.POST, req.FILES)
         if form.is_valid():
             tags = form.cleaned_data['tags']
@@ -213,39 +216,50 @@ def upload(req):
             collection_name = req.user
             # If they defined a collection name, use that. Otherwise, use the name of the file/zip
             col_name = collection_name
+
             # Two possibilities we want to handle:
-            # a) it's a .zip, so unzip it and ingest all files
-            # b) it's a .svg, so just ingest this one file
-            file_type = svg.name.split('.')[1]
-            if file_type == 'zip':
-                unzipped = zipfile.ZipFile(svg)
-                for file_name in unzipped.namelist():
-                    # If it doesn't have an extension, skip it
-                    if len(file_name.split('.')) == 1:
-                        continue
-                    unzipped_type = file_name.split('.')[1]
-                    if unzipped_type != 'svg':
-                        continue
-                    col, col_created = Collection.objects.get_or_create(name=col_name)
-                    icon_name = os.path.splitext(os.path.basename(file_name))[0]
-                    icon, icon_created = Icon.objects.get_or_create(name=icon_name, collection=col, owner=req.user)
-                    msg = 'initial import' if icon_created else 'automatic update'
-                    # Add tags to the icon
-                    icon.tags.add(*tags)
-                    data = unzipped.read(file_name)
-                    updated = True
-                    try:
-                        latest = icon.icondata_set.latest('version')
-                        updated = latest.svg == data
-                    except ObjectDoesNotExist:
-                        pass
-                    if updated:
-                        icon.new_version(data, msg)  # Pass req.user
-                    icon.save()
-                    messages.success(req, 'Congratulations! Your upload was successful. You can see your icons on your profile page. When you\'re composing a story with point layers, you\'ll be able to style your points with any icons uploaded by any storyteller in the Icons Commons!')
-            elif file_type == 'svg':
+            # a) it's a zip, so unzip it and ingest all files
+            # b) it's a svg, so just ingest this one file
+            if zipfile.is_zipfile(svg):
+                file_pointer, path = mkstemp()
+
+                with open(path, 'w') as file:
+                    if not svg.multiple_chunks():
+                        file.write(svg.read())
+                    else:
+                        for chunk in svg.chunks():
+                            file.write(chunk)
+
+                with open(path, 'r') as file:
+                    unzipped = zipfile.ZipFile(file)
+                    for file_name in unzipped.namelist():
+                        # If it doesn't have an extension, skip it
+                        if len(file_name.split('.')) == 1:
+                            continue
+                        unzipped_type = file_name.split('.')[1]
+                        if unzipped_type != 'svg':
+                            continue
+                        col, col_created = Collection.objects.get_or_create(name=col_name)
+                        icon_name = os.path.splitext(os.path.basename(file_name))[0]
+                        icon, icon_created = Icon.objects.get_or_create(name=icon_name, collection=col, owner=req.user)
+                        msg = 'initial import' if icon_created else 'automatic update'
+                        # Add tags to the icon
+                        icon.tags.add(*tags)
+                        data = unzipped.read(file_name)
+                        updated = True
+                        try:
+                            latest = icon.icondata_set.latest('version')
+                            updated = latest.svg == data
+                        except ObjectDoesNotExist:
+                            pass
+                        if updated:
+                            icon.new_version(data, msg)  # Pass req.user
+                        icon.save()
+                        messages.success(req, 'Congratulations! Your upload was successful. You can see your icons on your profile page. When you\'re composing a story with point layers, you\'ll be able to style your points with any icons uploaded by any storyteller in the Icons Commons!')
+                os.close(file_pointer)
+            elif svg.content_type == 'image/svg+xml':
                 col, col_created = Collection.objects.get_or_create(name=col_name)
-                icon_name = svg.name.split('.')[0]
+                icon_name = os.path.splitext(os.path.basename(svg.name))[0]
                 icon, icon_created = Icon.objects.get_or_create(name=icon_name, collection=col, owner=req.user)
                 msg = 'initial import' if icon_created else 'automatic update'
                 icon.tags.add(*tags)
