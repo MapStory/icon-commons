@@ -224,11 +224,8 @@ def upload(req):
                 file_pointer, path = mkstemp()
 
                 with open(path, 'w') as file:
-                    if not svg.multiple_chunks():
-                        file.write(svg.read())
-                    else:
-                        for chunk in svg.chunks():
-                            file.write(chunk)
+                    for chunk in svg.chunks():
+                        file.write(chunk)
 
                 with open(path, 'r') as file:
                     unzipped = zipfile.ZipFile(file)
