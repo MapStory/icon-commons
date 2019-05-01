@@ -220,7 +220,8 @@ def upload(req):
             # Two possibilities we want to handle:
             # a) it's a zip, so unzip it and ingest all files
             # b) it's a svg, so just ingest this one file
-            if zipfile.is_zipfile(svg):
+            file_type = svg.name.split('.')[1]
+            if file_type == 'zip':
                 file_pointer, path = mkstemp()
 
                 with open(path, 'w') as file:
