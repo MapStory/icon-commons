@@ -27,7 +27,7 @@ def process_element(element, replacers):
     if style:
         styledict = dict([pv.split(':') for pv in style.split(';') if ':' in pv])
         if any([r.process(styledict) for r in replacers]):
-            style = ';'.join(['%s:%s' % kv for kv in styledict.items()])
+            style = ';'.join(['%s:%s' % kv for kv in list(styledict.items())])
             element.set('style', style)
     # style may also be in element attributes
     for r in replacers:
