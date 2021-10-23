@@ -24,7 +24,7 @@ class IconData(models.Model):
     svg = models.TextField()
     version = models.PositiveSmallIntegerField()
     change_log = models.TextField(null=True)
-    icon = models.ForeignKey('icon_commons.Icon')
+    icon = models.ForeignKey('icon_commons.Icon', on_delete=models.CASCADE)
     modified = models.DateTimeField(auto_now=True)
 
     def data_uri(self):
@@ -40,8 +40,8 @@ class IconData(models.Model):
 
 class Icon(SlugMixin):
 
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True)
-    collection = models.ForeignKey('icon_commons.Collection')
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.CASCADE)
+    collection = models.ForeignKey('icon_commons.Collection', on_delete=models.CASCADE)
     tags = TaggableManager()
     modified = models.DateTimeField(auto_now=True)
 

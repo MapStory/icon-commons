@@ -33,7 +33,7 @@ def visit(visitor, dirname, names):
                 pass
             if updated:
                 icon.new_version(data, msg)
-        print 'imported ' if created else 'updated', p, ' in %.3f seconds' % (time.time() - t)
+        print('imported ' if created else 'updated', p, ' in %.3f seconds' % (time.time() - t))
 
 
 _tag_splitter = re.compile('[-_ ]')

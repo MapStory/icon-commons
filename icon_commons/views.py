@@ -2,14 +2,15 @@ import os
 from tempfile import mkstemp
 import os.path
 from django.contrib import messages
-from django.core.urlresolvers import reverse
 from django.db import connection
 from django.db.models import Count
 from django.http import HttpResponse
 from django.http import HttpResponseNotModified
+from django.urls import reverse
 from django.views.generic.base import View
 from django.views.generic.base import ContextMixin
 from django.views.generic.list import MultipleObjectMixin
+
 from icon_commons.models import Collection
 from icon_commons.models import Icon
 from icon_commons.models import IconData
@@ -24,7 +25,6 @@ from django.http import HttpResponseRedirect
 from django.template import RequestContext
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
-from django.core import serializers
 
 _date_fmt = '%a, %d %b %Y %H:%M:%S GMT'
 
@@ -37,7 +37,7 @@ def debug_queries(func):
         settings.DEBUG = True
         connection.queries = []
         resp = func(*args, **kw)
-        print len(connection.queries)
+        print(len(connection.queries))
         return resp
 
     return inner
@@ -73,7 +73,7 @@ class JSONMixin(ContextMixin):
 class JSONListMixin(MultipleObjectMixin, JSONMixin):
     def get(self, request, *args, **kwargs):
         if self.context_object_name is None:
-            self.context_object_name = unicode(self.model._meta.verbose_name_plural)
+            self.context_object_name = str(self.model._meta.verbose_name_plural)
         self.object_list = self.get_queryset()
         return super(JSONListMixin, self).get(request, *args, **kwargs)
 
