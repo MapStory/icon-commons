@@ -4,7 +4,7 @@
 from setuptools import setup, find_packages
 
 try:
-    readme_text = open('README.md', 'rb').read()
+    readme_text = open('README.md', 'r').read()
 except IOError as e:
     readme_text = ''
 
